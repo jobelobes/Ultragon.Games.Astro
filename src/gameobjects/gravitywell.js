@@ -2,17 +2,26 @@ define(['phaser'], function (Phaser) {
     'use strict';
 
     var GravityWell = function (game, config) {
-        this.state = config;
+        var defaultConfig = {
+            power: 5,
+            angle: 0,
+            position: {
+                x: game.engine.world.centerX,
+                y: game.engine.world.centerY
+            } 
+        }
+
+        this.state = Phaser.Utils.mixin(config || {}, defaultConfig);
 
         this.game = game;
 
         this.view = game.engine.add.sprite(20, 20, GravityWell.Sprite);
         this.view.anchor.x = this.view.anchor.y = 0.5;
 
-        game.engine.physics.p2.enableBody(this.view, true);
+        game.engine.physics.p2.enableBody(this.view, false);
         this.body = this.view.body;
-        this.body.x = this.state.initialPosition.x;
-        this.body.x = this.state.initialPosition.y;
+        this.body.x = this.state.position.x;
+        this.body.y = this.state.position.y;
         this.body.collideWorldBounds = false;
         this.body.kinematic = true;
 
@@ -23,12 +32,7 @@ define(['phaser'], function (Phaser) {
         constructor: GravityWell,
 
         update: function () {
-            this.state.angle = (this.state.angle + (this.state.speed * Math.PI)) % (2 * Math.PI);
-
-            var offsetX = Math.cos(this.state.angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
-            var offsetY = Math.sin(this.state.angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
-            this.body.x = offsetX;
-            this.body.y = offsetY;
+        
         }
     };
 

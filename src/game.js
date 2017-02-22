@@ -1,4 +1,10 @@
-define(['phaser', 'gameobjects/player', 'gameobjects/gravitywell', 'gameobjects/wall'], function (Phaser, Player, GravityWell, Wall) {
+define([
+    'phaser', 
+    'gameobjects/player', 
+    'gameobjects/gravitywellmgr', 
+    'gameobjects/wall',
+    'gameobjects/target'], 
+function (Phaser, Player, GravityWellMgr, Wall, Target) {
     'use strict';
 
     var Game = function () {
@@ -26,7 +32,7 @@ define(['phaser', 'gameobjects/player', 'gameobjects/gravitywell', 'gameobjects/
 
         preload: function () {
             Player.Preload(this);
-            GravityWell.Preload(this);
+            GravityWellMgr.Preload(this);
         },
 
         create: function () {
@@ -36,33 +42,17 @@ define(['phaser', 'gameobjects/player', 'gameobjects/gravitywell', 'gameobjects/
             this.engine.physics.p2.restitution = 0.8;
 
             this.gamestate.player = new Player(this, {
-                speed: 8000,
-                initialPosition: {
-                    x: this.engine.world.centerX,
-                    y: this.engine.world.centerY,
-                }
+                debug: true,
             });
             this.gamestate.objects.push(this.gamestate.player);
 
-            // Create gravity wells -->
-            this.gamestate.gravitywells = [];
-            for (var i = 0; i < this.gamestate.config.maxGravityWell; i++) {
-                var angle = (2 * Math.PI / this.gamestate.config.maxGravityWell) * i;
-
-                var gravitywell = new GravityWell(this, {
-                    angle: angle,
-                    power: Math.random() * 50,
-                    speed: Math.random() * 0.001,
-                    initialPosition: {
-                        x: Math.cos(angle) * this.engine.world.centerX + this.engine.world.centerX,
-                        y: Math.sin(angle) * this.engine.world.centerY + this.engine.world.centerY
-                    } 
-                });
-
-                this.gamestate.gravitywells.push(gravitywell);
-                this.gamestate.objects.push(gravitywell);
-            }
-            // <--
+            this.gamestate.target = new Target(this, {
+                position: {
+                    x: this.engine.world.centerX,
+                    y: this.engine.world.centerY,
+                }
+            })
+            this.gamestate.objects.push(this.gamestate.target);
 
             // Create airlock -->
             this.gamestate.airlock = this.engine.add.group();
@@ -75,11 +65,11 @@ define(['phaser', 'gameobjects/player', 'gameobjects/gravitywell', 'gameobjects/
 
                 var angle = (2 * Math.PI / airlockSides) * i;
                 var airlockWall = new Wall(this, {
-                    initialPosition: {
+                    position: {
                         x: Math.cos(angle) * this.engine.world.centerX * 0.5 + this.engine.world.centerX,
                         y: Math.sin(angle) * this.engine.world.centerX * 0.5 + this.engine.world.centerX,
                     },
-                    initialRotation: angle,
+                    rotation: angle,
                     width: width,
                     height: height,
                     color: '#ff0000'
@@ -90,14 +80,20 @@ define(['phaser', 'gameobjects/player', 'gameobjects/gravitywell', 'gameobjects/
 
             }
             // <--
+
+            this.gamestate.gravitywells = new GravityWellMgr(this, {
+                minPower: 1,
+                maxPower: 5,
+                maxCount: 1
+            });
+            this.gamestate.objects.push(this.gamestate.gravitywells);
         },
 
         update: function () {
+            var delta = this.engine.time.physicsElapsed;
             for (var i = 0; i < this.gamestate.objects.length; i++) {
-                this.gamestate.objects[i].update();
+                this.gamestate.objects[i].update(delta);
             }
-
-            this.engine.physics.arcade.collide(this.gamestate.objects, this.gamestate.objects);
         },
 
         render: function () {
