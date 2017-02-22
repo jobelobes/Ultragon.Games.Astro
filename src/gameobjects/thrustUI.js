@@ -49,11 +49,9 @@ define(['phaser'], function (Phaser) {
                 this.text.setText(Math.trunc(this.game.gamestate.player.state.thrust.amount));
 
                 this.line.clear();
-                this.line.beginFill(0xab3602);
-                this.line.lineStyle(4, 0x02fdeb, 1);
+                this.line.lineStyle(4, 0x33FF86, 1);
                 this.line.moveTo(0,0);
                 this.line.lineTo(this.game.gamestate.player.view.x - this.view.x, this.game.gamestate.player.view.y - this.view.y);
-                this.line.endFill();
 
             } else {
                 this.view.visible = false;
