@@ -24,6 +24,7 @@ define(['phaser'], function (Phaser) {
         this.sprite.ctx.fill();
 
         this.view = game.engine.add.sprite(this.sprite.width, this.sprite.height, this.sprite);
+        this.view.alpha = 0.5;
         this.view.anchor.x = this.view.anchor.y = 0.5;
 
         game.engine.physics.p2.enableBody(this.view, false);

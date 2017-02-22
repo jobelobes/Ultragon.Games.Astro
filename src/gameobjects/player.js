@@ -1,4 +1,4 @@
-define(['phaser'], function (Phaser) {
+define(['phaser', 'gameobjects/thrustui'], function (Phaser, ThrustUI) {
     'use strict';
 
     var Player = function (game, config) {
@@ -35,6 +35,8 @@ define(['phaser'], function (Phaser) {
         this.body.y = this.game.engine.world.centerY;
         this.body.collideWorldBounds = true;
         this.body.dynamic = true;
+
+        this.thrustUI = new ThrustUI(game);
     }
 
     Player.prototype = {
@@ -44,7 +46,7 @@ define(['phaser'], function (Phaser) {
             this.state.points += value;
         },
 
-        update: function () {
+        update: function (delta) {
 
             if (this.game.engine.input.mousePointer.isDown) {
                 var mouse = this.game.engine.input.mousePointer;
@@ -53,25 +55,29 @@ define(['phaser'], function (Phaser) {
 
                 var angle = Math.atan2(deltaY, deltaX);
                 var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                var thrust = Math.min(this.game.engine.math.linear(this.state.thrust.minPower, this.state.thrust.maxPower, distance / this.state.maxDistance), this.state.thrust.fuel);
+                this.state.thrust.amount = Math.min(this.game.engine.math.linear(this.state.thrust.minPower, this.state.thrust.maxPower, distance / this.state.maxDistance), this.state.thrust.fuel);
 
-                this.body.force.x = Math.cos(angle) * thrust;
-                this.body.force.y = Math.sin(angle) * thrust;
+                this.body.force.x = Math.cos(angle) * this.state.thrust.amount;
+                this.body.force.y = Math.sin(angle) * this.state.thrust.amount;
 
-                this.state.thrust.fuel = Math.max(this.state.thrust.fuel - thrust, 0);
-
+                this.state.thrust.fuel = Math.max(this.state.thrust.fuel - this.state.thrust.amount, 0);
             } else {
+                this.state.thrust.amount = 0;
                 this.state.thrust.fuel = Math.min(this.state.thrust.fuel + (this.state.thrust.regenRate * this.state.thrust.maxFuel), this.state.thrust.maxFuel);
             }
 
             if(this.state.debug) {
                 console.log(JSON.stringify(this.state));
             }
+
+            this.thrustUI.update(delta);
         }
     };
 
     Player.Preload = function (game) {
         game.engine.load.image('player', 'assets/player.png');
+
+        ThrustUI.Preload(game);
     }
 
     return Player;
