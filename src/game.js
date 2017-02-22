@@ -42,11 +42,12 @@ function (Phaser, Player, GravityWellMgr, Wall, Target) {
             this.engine.physics.p2.restitution = 0.8;
 
             this.gamestate.player = new Player(this, {
-                debug: true,
+                debug: false,
             });
             this.gamestate.objects.push(this.gamestate.player);
 
             this.gamestate.target = new Target(this, {
+                radius: 30,
                 position: {
                     x: this.engine.world.centerX,
                     y: this.engine.world.centerY,
@@ -87,6 +88,9 @@ function (Phaser, Player, GravityWellMgr, Wall, Target) {
                 maxCount: 1
             });
             this.gamestate.objects.push(this.gamestate.gravitywells);
+
+            this.engine.add.text(10, 10, "Fuel\tPoints", { font: "20px Courier", fill: "#fff", tabs: 132 });
+            this.output = this.engine.add.text(10, 30, this.gamestate.player.state.thrust.fuel + "\t" + this.gamestate.player.state.points, { font: "20px Courier", fill: "#fff", tabs: 132 });
         },
 
         update: function () {
@@ -94,6 +98,8 @@ function (Phaser, Player, GravityWellMgr, Wall, Target) {
             for (var i = 0; i < this.gamestate.objects.length; i++) {
                 this.gamestate.objects[i].update(delta);
             }
+
+            this.output.setText(Math.trunc(this.gamestate.player.state.thrust.fuel) + "\t" + Math.trunc(this.gamestate.player.state.points));
         },
 
         render: function () {

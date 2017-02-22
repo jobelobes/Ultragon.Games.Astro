@@ -9,6 +9,7 @@ define(['phaser', 'gameobjects/gravitywell'], function (Phaser, GravityWell) {
         };
 
         this.state = Phaser.Utils.mixin(config || {}, defaultConfig);
+        this.state.totalTime = 0;
 
         this.game = game;
 
@@ -35,19 +36,28 @@ define(['phaser', 'gameobjects/gravitywell'], function (Phaser, GravityWell) {
     GravityWellManager.prototype = {
         constructor: GravityWellManager,
 
-        update: function () {
-            for (var i = 0; i < this.items.length; i++) {
-                var gravityWell = this.items[i];
+        update: function (delta) {
 
-                // this.state.angle = (this.state.angle + (this.state.speed * Math.PI)) % (2 * Math.PI);
-
-                // var offsetX = Math.cos(this.state.angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
-                // var offsetY = Math.sin(this.state.angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
-                // this.body.x = offsetX;
-                // this.body.y = offsetY;
-
-                gravityWell.update();
+            this.state.totalTime += delta;
+            if (this.state.totalTime > 5) {
+                for (var i = 0; i < this.items.length; i++) {
+                    this.changePosition(this.items[i]);
+                }
+                this.state.totalTime = 0;
             }
+
+            for (var i = 0; i < this.items.length; i++) {
+                this.items[i].update();
+            }
+        },
+
+        changePosition: function (gravityWell) {
+            var angle = Math.random() * 2 * Math.PI;
+            var posX = Math.cos(angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
+            var posY = Math.sin(angle) * this.game.engine.world.centerX + this.game.engine.world.centerX;
+
+            gravityWell.body.x = posX;
+            gravityWell.body.y = posY;
         }
     };
 
