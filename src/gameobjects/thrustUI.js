@@ -1,7 +1,7 @@
 define(['phaser'], function (Phaser) {
     'use strict';
 
-    var Target = function (game, config) {
+    var ThrustUI = function (game, config) {
         var defaultConfig = {
             radius: 10,
             color: '#33FF86',
@@ -37,8 +37,8 @@ define(['phaser'], function (Phaser) {
         this.view.add(this.line);
     }
 
-    Target.prototype = {
-        constructor: Target,
+    ThrustUI.prototype = {
+        constructor: ThrustUI,
 
         update: function (delta) {
             if (this.game.engine.input.mousePointer.isDown) {
@@ -59,9 +59,9 @@ define(['phaser'], function (Phaser) {
         }
     };
 
-    Target.Preload = function (game) {
+    ThrustUI.Preload = function (game) {
 
     }
 
-    return Target;
+    return ThrustUI;
 });

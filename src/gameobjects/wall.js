@@ -11,9 +11,11 @@ define(['phaser'], function (Phaser) {
                 y: 0,
             },
             rotation: 0,
+            damage_ps: 10,
         }
 
         this.state = Phaser.Utils.mixin(config || {}, defaultConfig);
+        this.state.playInContact = false;
 
         this.game = game;
 
@@ -32,13 +34,35 @@ define(['phaser'], function (Phaser) {
         this.body.y = this.state.position.y;
         this.body.rotation = this.state.rotation;
         this.body.static = true;
+        if(this.state.damage_ps > 0){
+            this.body.onBeginContact.add(this.onBeginContact.bind(this), this)
+            this.body.onEndContact.add(this.onEndContact.bind(this), this)
+        }
     }
 
     Wall.prototype = {
         constructor: Wall,
 
-        update: function () {
+        update: function (delta) {
+            if(this.state.playInContact) {
+                this.game.gamestate.player.awardDamage(this.state.damage_ps);
+            }
+        },
 
+        onBeginContact: function (bodyA, bodyB, shapeA, shapeB, equation){
+            if(bodyA !== this.game.gamestate.player.body){
+                return;
+            }
+
+            this.state.playInContact = true;
+        },
+
+        onEndContact: function (bodyA, bodyB, shapeA, shapeB, equation){
+            if(bodyA !== this.game.gamestate.player.body) {
+                return;
+            }
+
+            this.state.playInContact = false;
         }
     };
 

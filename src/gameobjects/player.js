@@ -15,11 +15,16 @@ define(['phaser', 'gameobjects/thrustui'], function (Phaser, ThrustUI) {
                 x: game.engine.world.centerX,
                 y: game.engine.world.centerY,
             },
-            points: 0,
+            health: {
+                max: 100,
+                regenRate: 0.01,
+            },
+            score: 0,
         };
 
         this.state = Phaser.Utils.mixin(config || {}, defaultConfig);
         this.state.thrust.fuel = this.state.thrust.maxFuel;
+        this.state.health.amount = this.state.health.max;
         this.state.maxDistance = Math.sqrt(game.engine.width * game.engine.width + game.engine.height * game.engine.height);
 
         this.game = game;
@@ -35,6 +40,7 @@ define(['phaser', 'gameobjects/thrustui'], function (Phaser, ThrustUI) {
         this.body.y = this.game.engine.world.centerY;
         this.body.collideWorldBounds = true;
         this.body.dynamic = true;
+        this.body.angularDamping = 0.8;
 
         this.thrustUI = new ThrustUI(game);
     }
@@ -43,7 +49,15 @@ define(['phaser', 'gameobjects/thrustui'], function (Phaser, ThrustUI) {
         constructor: Player,
 
         awardPoints: function (value) {
-            this.state.points += value;
+            this.state.score += value;
+        },
+
+        awardDamage: function (value) {
+            this.state.health.amount = Math.max(this.state.health.amount - value, 0);
+        },
+
+        awardHealth: function(value) {
+            this.state.health.amount = Math.min(Math.max(this.state.health.amount + value, 0), this.state.health.max);
         },
 
         update: function (delta) {
@@ -69,6 +83,8 @@ define(['phaser', 'gameobjects/thrustui'], function (Phaser, ThrustUI) {
             if(this.state.debug) {
                 console.log(JSON.stringify(this.state));
             }
+
+            this.state.health.amount = Math.min(this.state.health.amount + this.state.health.max * this.state.health.regenRate * delta, this.state.health.max);
 
             this.thrustUI.update(delta);
         }

@@ -9,7 +9,8 @@ define(['phaser'], function (Phaser) {
                 x: 0,
                 y: 0,
             },
-            pointsAwarded_ps: 10,
+            points_ps: 10,
+            health_ps: 10,
         };
 
         this.state = Phaser.Utils.mixin(config || {}, defaultConfig);
@@ -43,7 +44,8 @@ define(['phaser'], function (Phaser) {
 
         update: function (delta) {
             if(this.state.isPlayerColliding) {
-                this.game.gamestate.player.awardPoints(delta * this.state.pointsAwarded_ps);
+                this.game.gamestate.player.awardPoints(delta * this.state.points_ps);
+                this.game.gamestate.player.awardHealth(delta * this.state.health_ps);
             }
             
         },

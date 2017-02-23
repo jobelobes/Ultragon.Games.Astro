@@ -3,8 +3,9 @@ define([
     'gameobjects/player', 
     'gameobjects/gravitywellmgr', 
     'gameobjects/wall',
-    'gameobjects/target'], 
-function (Phaser, Player, GravityWellMgr, Wall, Target) {
+    'gameobjects/target',
+    'gameobjects/playerUI'], 
+function (Phaser, Player, GravityWellMgr, Wall, Target, PlayerUI) {
     'use strict';
 
     var Game = function () {
@@ -68,7 +69,7 @@ function (Phaser, Player, GravityWellMgr, Wall, Target) {
                 var airlockWall = new Wall(this, {
                     position: {
                         x: Math.cos(angle) * this.engine.world.centerX * 0.5 + this.engine.world.centerX,
-                        y: Math.sin(angle) * this.engine.world.centerX * 0.5 + this.engine.world.centerX,
+                        y: Math.sin(angle) * this.engine.world.centerY * 0.5 + this.engine.world.centerY,
                     },
                     rotation: angle,
                     width: width,
@@ -84,22 +85,33 @@ function (Phaser, Player, GravityWellMgr, Wall, Target) {
 
             this.gamestate.gravitywells = new GravityWellMgr(this, {
                 minPower: 1,
-                maxPower: 5,
+                maxPower: 4,
                 maxCount: 1
             });
             this.gamestate.objects.push(this.gamestate.gravitywells);
 
-            this.engine.add.text(10, 10, "Fuel\tPoints", { font: "20px Courier", fill: "#fff", tabs: 132 });
-            this.output = this.engine.add.text(10, 30, this.gamestate.player.state.thrust.fuel + "\t" + this.gamestate.player.state.points, { font: "20px Courier", fill: "#fff", tabs: 132 });
+            this.gamestate.objects.push(new PlayerUI(this));
         },
 
         update: function () {
+
+            if(this.engine.physics.p2.paused) {
+                return;
+            }
+
             var delta = this.engine.time.physicsElapsed;
             for (var i = 0; i < this.gamestate.objects.length; i++) {
                 this.gamestate.objects[i].update(delta);
             }
 
-            this.output.setText(Math.trunc(this.gamestate.player.state.thrust.fuel) + "\t" + Math.trunc(this.gamestate.player.state.points));
+            if(this.gamestate.player.state.health.amount == 0) {
+                this.engine.physics.p2.pause();
+
+                var text = this.engine.add.text(0,0, "GameOver", { font: "40px Courier", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+                text.setTextBounds(0, 0, this.engine.width, this.engine.height);
+                text = this.engine.add.text(0,0, "Score: " + Math.trunc(this.gamestate.player.state.score), { font: "32px Courier", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+                text.setTextBounds(0, 40, this.engine.width, this.engine.height);
+            }
         },
 
         render: function () {
