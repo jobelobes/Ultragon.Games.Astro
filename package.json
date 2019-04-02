@@ -4,9 +4,12 @@
   "description": "simple game prototype",
   "main": "index.js",
   "scripts": {
-  	"start": "http-server -a localhost -p 8000 -c-1 -d false",
+    "start": "http-server -a localhost -p 8000 -c-1 -d false",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
 }
